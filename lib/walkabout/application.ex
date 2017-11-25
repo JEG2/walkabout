@@ -5,7 +5,16 @@ defmodule Walkabout.Application do
 
   use Application
 
-  def start(_type, _args) do
+  def start_client(_type, _args) do
+    children = [
+      {Walkabout.Client, %{host: "localhost", 8910}}
+    ]
+
+    opts = [strategy: :one_for_one, name: Walkabout.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+
+  def start_server(_type, _args) do
     # List all child processes to be supervised
     children = [
       # Starts a worker by calling: Walkabout.Worker.start_link(arg)
