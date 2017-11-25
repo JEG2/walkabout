@@ -1,5 +1,6 @@
 defmodule Walkabout.Connection do
   use GenServer
+  require Logger
 
   def start_link do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
@@ -14,12 +15,20 @@ defmodule Walkabout.Connection do
   end
 
   def handle_call({:wrap, socket}, _from, nil) do
-    IO.inspect("Wrapping...")
     :inet.setopts(socket, active: :once)
     {:reply, :ok, socket}
   end
 
-  def handle_info(message, _socket) do
+  def handle_info({:tcp, socket, message}, socket) do
     IO.inspect(message)
+    :inet.setopts(socket, active: :once)
+    {:noreply, socket}
+  end
+  def handle_info({:tcp_closed, socket}, socket) do
+    {:stop, :normal, socket}
+  end
+  def handle_info(message, socket) do
+    Logger.debug("Unexpected message:  #{inspect message}")
+    {:noreply, socket}
   end
 end

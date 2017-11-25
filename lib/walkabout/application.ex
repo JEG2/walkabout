@@ -15,7 +15,13 @@ defmodule Walkabout.Application do
           Supervisor,
           :start_link,
           [
-            [{Walkabout.Connection, [ ]}],
+            [
+              Supervisor.child_spec(
+                Walkabout.Connection,
+                restart: :temporary,
+                start:   {Walkabout.Connection, :start_link, [ ]}
+              )
+            ],
             [
               strategy: :simple_one_for_one,
               name:     Walkabout.ConnectionSupervisor

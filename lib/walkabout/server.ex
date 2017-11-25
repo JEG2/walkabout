@@ -10,7 +10,8 @@ defmodule Walkabout.Server do
   end
 
   def start_link(port) do
-    with {:ok, server} <- Task.Supervisor.start_link(name: __MODULE__) do
+    with {:ok, server} <- Task.Supervisor.start_link( name:    __MODULE__,
+                                                      restart: :permanent ) do
       Task.Supervisor.start_child(server, fn -> start_listening(port) end)
       {:ok, server}
     end
@@ -19,10 +20,10 @@ defmodule Walkabout.Server do
   def start_listening(port) do
     with {:ok, listen_socket} <- :gen_tcp.listen( port,
                                                   [ :binary,
-                                                    packet: 1,
-                                                    active: false,
-                                                    ip: {0, 0, 0, 0} ] ) do
-      IO.inspect("Listening...")
+                                                    packet:    1,
+                                                    active:    false,
+                                                    ip:        {0, 0, 0, 0},
+                                                    reuseaddr: true ] ) do
       accept_incoming_connections(listen_socket)
     end
   end
@@ -31,7 +32,6 @@ defmodule Walkabout.Server do
     with {:ok, socket}     <- :gen_tcp.accept(listen_socket),
          {:ok, connection} <- Supervisor.start_child( ConnectionSupervisor,
                                                       [ ] ) do
-      IO.inspect("Accepting...")
       :gen_tcp.controlling_process(socket, connection)
       Connection.wrap(connection, socket)
       accept_incoming_connections(listen_socket)
