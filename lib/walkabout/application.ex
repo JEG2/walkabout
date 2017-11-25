@@ -9,7 +9,22 @@ defmodule Walkabout.Application do
     # List all child processes to be supervised
     children = [
       # Starts a worker by calling: Walkabout.Worker.start_link(arg)
-      # {Walkabout.Worker, arg},
+      %{
+        id:    Walkabout.ConnectionSupervisor,
+        start: {
+          Supervisor,
+          :start_link,
+          [
+            [{Walkabout.Connection, [ ]}],
+            [
+              strategy: :simple_one_for_one,
+              name:     Walkabout.ConnectionSupervisor
+            ]
+          ]
+        },
+        type:  :supervisor
+      },
+      {Walkabout.Server, [8910]},
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
