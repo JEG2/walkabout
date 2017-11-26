@@ -5,16 +5,22 @@ defmodule Walkabout.Application do
 
   use Application
 
-  def start_client(_type, _args) do
+  @default_port 8910
+
+  def start(_type, _args) do
+    start_server(@default_port)
+  end
+
+  def start_client(address, port) do
     children = [
-      {Walkabout.Client, %{host: "localhost", 8910}}
+      {Walkabout.Client, %{host: address, port: port || @default_port}}
     ]
 
     opts = [strategy: :one_for_one, name: Walkabout.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
-  def start_server(_type, _args) do
+  def start_server(port) do
     # List all child processes to be supervised
     children = [
       # Starts a worker by calling: Walkabout.Worker.start_link(arg)
@@ -39,7 +45,7 @@ defmodule Walkabout.Application do
         },
         type:  :supervisor
       },
-      {Walkabout.Server, [8910]},
+      {Walkabout.Server, [port || @default_port]},
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
