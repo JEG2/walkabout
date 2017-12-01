@@ -1,20 +1,9 @@
 defmodule Walkabout.Server do
+  use Task
   alias Walkabout.{Connection, ConnectionSupervisor}
 
-  def child_spec(args) do
-    %{
-      id:    __MODULE__,
-      start: {__MODULE__, :start_link, args},
-      type:  :supervisor
-    }
-  end
-
-  def start_link(port) do
-    with {:ok, server} <- Task.Supervisor.start_link( name:    __MODULE__,
-                                                      restart: :permanent ) do
-      Task.Supervisor.start_child(server, fn -> start_listening(port) end)
-      {:ok, server}
-    end
+  def start_link([port]) do
+    Task.start_link(fn -> start_listening(port) end)
   end
 
   def start_listening(port) do
