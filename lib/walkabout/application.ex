@@ -15,6 +15,7 @@ defmodule Walkabout.Application do
     # List all child processes to be supervised
     children = [
       # Starts a worker by calling: Walkabout.Worker.start_link(arg)
+      {Walkabout.SharedLocation, [Path.expand("priv/locations/simple.txt")]},
       {Walkabout.ConnectionSupervisor, [ ]},
       {Walkabout.Server, [port || @default_port]},
     ]
